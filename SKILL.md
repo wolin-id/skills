@@ -45,7 +45,7 @@ Integrate passwordless Wolin Passport authentication (W3C Solid-OIDC + RFC 9449 
 | Concept | Canonical Endpoint / IRI | Production Capability / Invariant |
 | :--- | :--- | :--- |
 | OIDC Issuer | `https://auth.wolin.id` | D1, AWS SES Magic Link, GitHub OAuth live (+ 5 providers ready), 6-lang i18n (`en/zh/es/pt/ja/ko`), Rybbit + D1 zero-PII error/feedback loop |
-| Pod Cloud Engine | `https://pod.wolin.id` | Per-Pod RocksDB (`LRU 256`, `1 GiB` quota), ~180 reserved handles + Tombstone (`410`), HMAC-SHA256 `302` R2 offload, JWKS `at+jwt` verifier |
+| Pod Cloud Engine | `https://pod.wolin.id` | Per-Pod RocksDB (`LRU 256`, `1 GiB` quota), ~180 reserved handles + Tombstone (`409`), HMAC-SHA256 `302` R2 offload, JWKS `at+jwt` verifier |
 | WebID URI | `https://{handle}.wolin.id/profile/card#me` | Dereference with `Accept: text/turtle` (HTML renders Wolin Passport) |
 | Pod Root | `https://{handle}.wolin.id/` | LDP Containers MUST end with `/` |
 | Local Sandbox | `http://127.0.0.1:4000` | Start via `wolin-server --in-memory` (zero external dependencies) |
@@ -85,7 +85,7 @@ Integrate passwordless Wolin Passport authentication (W3C Solid-OIDC + RFC 9449 
 - **Missing trailing slash on LDP Containers:** Requesting `https://alice.wolin.id/worlds` instead of `https://alice.wolin.id/worlds/` treats a container as a leaf resource and breaks relative IRI resolution.
 - **Query or fragment in DPoP `htu`:** RFC 9449 §4.2 requires stripping `?query` and `#fragment` from `htu` before signing `dpop+jwt`; leaving `#me` in `htu` causes signature verification failure (`401`).
 - **Skipping `DPoP-Nonce` retry:** Authorization and resource servers may return `400` or `401` with a `DPoP-Nonce` response header (`use_dpop_nonce`). Re-sign once with that `nonce` claim.
-- **Reserved or tombstoned handles:** ~180 infrastructure/brand handles are blocked (`409`), Free Tier requires `4–32` lowercase chars (`3` chars on Pro/Creator), and deleted Pods enter permanent Tombstone (`410 Gone`).
+- **Reserved or tombstoned handles:** ~180 infrastructure/brand handles are blocked (`400`), Free Tier requires `4–32` lowercase chars (`3` chars on Pro/Creator), and deleted Pods enter permanent Tombstone (`409 Conflict` on re-claim after full data & ACL purge).
 - **Counting occluded or oblique billboards as viewable:** Never credit a 3D ad impression from `Frustum` alone — always require front-facing normal (`cos >= 0.15`), `>= 5%` projected viewport area, unobstructed `Raycaster` line-of-sight, and `1.5s` continuous active dwell.
 - **Z-index bleed from 3D `<Html>` overlays:** Wrap the WebGL `<Canvas>` in an isolated CSS stacking context (`isolation: isolate; z-index: 0`) so 3D CSS2D/CSS3D markers never punch through 2D modals (`z-index: 9999`).
 

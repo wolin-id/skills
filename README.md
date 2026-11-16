@@ -19,7 +19,7 @@ Designed for **Claude Code**, **Cursor**, **Hermes Agent**, **OpenAI Codex**, **
 ## Live Production Endpoints & Zero-Cost Sandbox
 
 - **Solid-OIDC Provider & Passport (`https://auth.wolin.id`)**: Cloudflare Workers + D1, AWS SES v2 Magic Link, GitHub OAuth live (+ Google, Kakao, Apple, Naver, Discord adapters ready for credentials), 6-language i18n (`en/zh/es/pt/ja/ko`), Rybbit analytics + zero-PII D1 error/feedback loop, and `/assets/:pod_id/*` signed R2 streaming.
-- **Sovereign Pod Data Plane (`https://pod.wolin.id` & `https://{handle}.wolin.id/`)**: `<30MB` Rust engine (`wolin-server`), Per-Pod Oxigraph RocksDB + bounded LRU (`256`) + `1 GiB` `$0` Free Tier quota, ~180 reserved handles + permanent Tombstone (`410 Gone`), short-lived `HMAC-SHA256` `302` R2 asset offload, and `JwksSignatureVerifier` + DPoP `at+jwt` verification.
+- **Sovereign Pod Data Plane (`https://pod.wolin.id` & `https://{handle}.wolin.id/`)**: `<30MB` Rust engine (`wolin-server`), Per-Pod Oxigraph RocksDB + bounded LRU (`256`) + `1 GiB` `$0` Free Tier quota, ~180 reserved handles + permanent Tombstone (`409 Conflict` re-claim lock), short-lived `HMAC-SHA256` `302` R2 asset offload, and `JwksSignatureVerifier` + DPoP `at+jwt` verification.
 - **Development Sandbox (No Public Devnet)**: Run `wolin-server --in-memory` locally (`http://127.0.0.1:4000`, ~6 ms startup) for offline/CI testing, or use the **`$0` Free Tier (`1 GiB`)** directly on `https://auth.wolin.id` and `https://pod.wolin.id`.
 
 ---
