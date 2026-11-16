@@ -1,4 +1,4 @@
-# Wolin Official RDF Vocabulary (`https://wolin.id/ns#`)
+# Wolin (月印千江) Official RDF Vocabulary (`https://wolin.id/ns#`)
 
 Authoritative schema reference for interoperable Wolin Passports, Sovereign Solid Pods, and cross-world 3D Metaverse applications.
 
@@ -37,7 +37,7 @@ Authoritative schema reference for interoperable Wolin Passports, Sovereign Soli
 
 | Term | Full IRI | Role |
 | :--- | :--- | :--- |
-| `solid:oidcIssuer` | `http://www.w3.org/ns/solid/terms#oidcIssuer` | Authoritative IdP trust anchor (e.g. `<https://id.wolin.id>`). Must match ID token `iss`. |
+| `solid:oidcIssuer` | `http://www.w3.org/ns/solid/terms#oidcIssuer` | Authoritative IdP trust anchor (canonical `<https://auth.wolin.id>`). Must match token `iss`. |
 | `pim:storage` | `http://www.w3.org/ns/pim/space#storage` | Root LDP Storage Container (`<https://{pod_id}.wolin.id/>`, always trailing `/`). |
 | `ldp:inbox` | `http://www.w3.org/ns/ldp#inbox` | Linked Data Notifications inbox container. |
 | `foaf:name` / `vcard:fn` | `http://xmlns.com/foaf/0.1/name` | Human-readable display name shown on Passport & 3D overhead nameplate. |
@@ -60,7 +60,7 @@ Served at `GET https://luna.wolin.id/profile/card` with `Accept: text/turtle`:
   a foaf:Person ;
   foaf:name "Luna Choi" ;
   vcard:fn "Luna Choi" ;
-  solid:oidcIssuer <https://id.wolin.id> ;
+  solid:oidcIssuer <https://auth.wolin.id> ;
   pim:storage <https://luna.wolin.id/> ;
   ldp:inbox <https://luna.wolin.id/inbox/> ;
   wolin:avatarGlbUrl <https://cdn.wolin.id/pods/luna/avatar.glb> ;
@@ -98,10 +98,10 @@ When consuming or emitting JSON-LD documents:
 
 1. **Public Avatar & World Assets (`$0` Egress)**:
    - Public `.glb` / `.vrm` avatars and textures are served directly from Cloudflare R2 + Edge CDN (`https://cdn.wolin.id/...`) with `Access-Control-Allow-Origin: *` for WebGL `GLTFLoader`.
-2. **Private / Subscribers-Only Assets**:
+2. **Private / Authorized Binary Assets (`302` HMAC-SHA256 Offload)**:
    - Never expose raw R2 buckets for private inventory items.
-   - `wolin-engine` validates the caller's `DPoP` proof + `.acl` / ACP policy first, then issues a **short-lived (30-second) R2 Presigned URL or HMAC-signed Worker URL** so authorization remains fail-closed while binary bandwidth bypasses the compute node.
+   - `wolin-server` validates the caller's `DPoP` proof + JWKS `at+jwt` access token + `.acl` / ACP policy first, then issues a **short-lived (`60`-second) `HMAC-SHA256` (`wolin-asset-v1`) `302 Found` redirect** (`>= 256 KiB` `NonRDFSource`) to `https://auth.wolin.id/assets/{pod_id}/{path}?exp=...&sig=...` so authorization remains fail-closed while binary bandwidth streams directly from Cloudflare R2.
 3. **Subdomain Handle (`{pod_id}.wolin.id`) Constraints**:
-   - Standard handles: `4–32` chars, lowercase ASCII `a-z`, `0-9`, `-` (no leading/trailing `-`, no `--`, no `xn--` punycode).
-   - `3`-char rare handles: Pro/Creator tier only.
-   - `1–2`-char handles & RFC 2142 / brand handles: system-reserved (`reserved_handles`). Deleted `pod_id` handles enter permanent `tombstone` freeze to prevent identity hijacking.
+   - `$0` Free Tier (`1 GiB` quota): `4–32` chars, lowercase ASCII `a-z`, `0-9`, `-` (no leading/trailing `-`, no `--`, no `xn--` punycode).
+   - `3`-char rare handles: Pro/Creator tier only (engine syntax allows `3–32` chars).
+   - `1–2`-char handles & ~180 built-in RFC 2142 / DNS / OAuth / infrastructure / brand handles: blocked in both `wolin-server` and `wolin-cloud`. Deleted `pod_id` handles enter permanent `tombstone` freeze (`410 Gone`) to prevent identity hijacking.

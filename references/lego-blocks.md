@@ -1,4 +1,4 @@
-# Wolin Metaverse 4 Lego Blocks Specification
+# Wolin (月印千江) Metaverse 4 Lego Blocks Specification
 
 Reference architecture and implementation contract for the 4 modular building blocks in [`wolin-id/metaverse-starter`](https://github.com/wolin-id/metaverse-starter).
 
@@ -10,9 +10,10 @@ Reference architecture and implementation contract for the 4 modular building bl
 One-click passwordless Wolin Passport sign-in paired with automatic cross-world 3D avatar loading from `https://wolin.id/ns#avatarGlbUrl`.
 
 ### Contract
-1. **Passwordless Solid-OIDC + DPoP**:
-   - Initiates PKCE `S256` authorization against `https://id.wolin.id` using `<origin>/client-id.jsonld`.
-   - Exchanges `?code=...&state=...` with an ES256 `dpop+jwt` proof and verifies `<webId> solid:oidcIssuer <issuer>`.
+1. **Passwordless Solid-OIDC + DPoP (`https://auth.wolin.id`)**:
+   - Initiates PKCE `S256` authorization against `https://auth.wolin.id` (6-language i18n `en/zh/es/pt/ja/ko`, AWS SES Magic Link + GitHub OAuth live + 5 social providers ready) using `<origin>/client-id.jsonld`.
+   - Exchanges `?code=...&state=...` with an ES256 `dpop+jwt` proof for a DPoP-bound `at+jwt` access token and verifies `<webId> solid:oidcIssuer <https://auth.wolin.id>`.
+   - Supports zero-cost testing via local `wolin-server --in-memory` or the `$0` Free Tier (`1 GiB`) on `https://auth.wolin.id` / `https://pod.wolin.id`.
 2. **3D Avatar Resolution Order**:
    - If `wolin:avatarGlbUrl` is present on the WebID profile and reachable over HTTPS, load via Three.js `GLTFLoader`, normalize bounding-box height to `~1.85m`, and align feet to `y = 0`.
    - If `wolin:avatarGlbUrl` is absent, offline, or fails CORS/network fetch, render a **procedural low-poly stylized 3D Explorer avatar** tinted by `wolin:passportTheme` so the scene never crashes or renders an empty origin.
