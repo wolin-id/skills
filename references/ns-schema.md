@@ -104,4 +104,4 @@ When consuming or emitting JSON-LD documents:
 3. **Subdomain Handle (`{pod_id}.wolin.id`) Constraints**:
    - `$0` Free Tier (`1 GiB` quota): `4–32` chars, lowercase ASCII `a-z`, `0-9`, `-` (no leading/trailing `-`, no `--`, no `xn--` punycode).
    - `3`-char rare handles: Pro/Creator tier only (engine syntax allows `3–32` chars).
-   - `1–2`-char handles & ~180 built-in RFC 2142 / DNS / OAuth / infrastructure / brand handles: blocked in both `wolin-server` and `wolin-cloud`. Deleted `pod_id` handles enter permanent `tombstone` freeze (`410 Gone`) to prevent identity hijacking.
+   - `1–2`-char handles & ~180 built-in RFC 2142 / DNS / OAuth / infrastructure / brand handles: blocked (`400`) in both `wolin-server` and `wolin-cloud`. Deleted `pod_id` handles purge all triples/blobs/ACLs and enter permanent `tombstone` freeze (`409 Conflict` on re-claim) to prevent identity hijacking.
